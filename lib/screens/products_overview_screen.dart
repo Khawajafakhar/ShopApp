@@ -54,7 +54,7 @@ class ProductsOverviewScreen extends StatelessWidget {
               crossAxisSpacing: 10,
               mainAxisSpacing: 10),
           itemBuilder: (ctx,index){
-            return ProductItem(products[index].imageUrl);
+            return ProductItem(products[index].imageUrl,products[index].title);
 
           },itemCount: products.length ,),
     );
