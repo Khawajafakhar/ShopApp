@@ -10,7 +10,7 @@ class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productDetails = Provider.of<Product>(context, listen: false);
-    final cart=Provider.of<Cart>(context,listen: false);
+    final cart = Provider.of<Cart>(context, listen: false);
     return Scaffold(
       body: GridTile(
         child: GestureDetector(
@@ -32,21 +32,32 @@ class ProductItem extends StatelessWidget {
                       productDetails.toggleFavorites();
                     },
                   ))),
-          title: FittedBox(
-            child: Text(
-              productDetails.title,
-              textAlign: TextAlign.center,
+          title: Text(
+            productDetails.title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 10,
             ),
           ),
-          trailing:  IconButton(
-              color: Theme.of(context).colorScheme.secondary,
-              icon: const Icon(Icons.shopping_cart),
-              onPressed: () {
-                cart.addItems(productDetails.id,productDetails.title,productDetails.price);
-              },
-            ),
-            
-          
+          trailing: IconButton(
+            color: Theme.of(context).colorScheme.secondary,
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              cart.addItems(productDetails.id, productDetails.title,
+                  productDetails.price);
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                duration: const Duration(seconds: 2),
+                content: const Text('Added'),
+                action: SnackBarAction(
+                  label: 'Undo',
+                  onPressed: () {
+                    cart.removeSingleItem(productDetails.id);
+                  },
+                ),
+              ));
+            },
+          ),
         ),
       ),
     );
