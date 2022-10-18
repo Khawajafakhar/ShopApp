@@ -10,6 +10,7 @@ class TextFormFieldWidget extends StatelessWidget {
   final Function(String)? onFieldSubmitted;
   final Function(String?)? onSaved;
   final String? Function(String?)? validate;
+  String? initValue;
 
   TextFormFieldWidget(
       {this.label,
@@ -20,12 +21,14 @@ class TextFormFieldWidget extends StatelessWidget {
       this.editingComplete,
       this.onFieldSubmitted,
       this.onSaved,
-      this.validate});
+      this.validate,
+      this.initValue});
    var context_;
   @override
   Widget build(BuildContext context) {
     context_ = context;
     return TextFormField(
+      initialValue: initValue,
       validator: validate,
       onSaved: onSaved,
       onFieldSubmitted: onFieldSubmitted,

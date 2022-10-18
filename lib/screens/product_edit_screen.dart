@@ -17,6 +17,36 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   final _form = GlobalKey<FormState>();
   Product _editedProduct = Product(
       id: null, imageUrl: null, description: null, price: null, title: null);
+      var _ischanged=true;
+      var _initValues={
+        'id': '',
+        'title': '',
+        'discription': '',
+        'price': '',
+        'imageUrl': '',
+      };
+
+      @override
+  void didChangeDependencies() {
+    if(_ischanged){
+      final productId = ModalRoute.of(context)!.settings.arguments as String;
+      if(productId != null){
+      _editedProduct=Provider.of<Products>(context).selectById(productId);
+      _initValues={
+        'id': _editedProduct.id!,
+        'title': _editedProduct.title!,
+        'discription': _editedProduct.description!,
+        'price': _editedProduct.price!.toString(),
+        'imageUrl': _imageUrlController.text=_editedProduct.imageUrl!,
+
+      };
+
+      }
+    }
+
+    _ischanged=false;
+    super.didChangeDependencies();
+  }
 
   void _onSave() {
     var isValid = _form.currentState!.validate();
@@ -25,7 +55,13 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     }
 
     _form.currentState!.save();
-    Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+    if(_editedProduct.id != null){
+    Provider.of<Products>(context, listen: false).updateProduct(_editedProduct.id!,_editedProduct);
+
+    }else{
+          Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+
+    }
     Navigator.of(context).pop();
 
     // print(_editedProduct.id);
@@ -60,6 +96,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                         Expanded(
                             flex: 2,
                             child: TextFormFieldWidget(
+                              initValue: _initValues['title'],
                               label: 'Title',
                               inputAction: TextInputAction.next,
                               onSaved: (value) {
@@ -83,6 +120,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                         ),
                         Expanded(
                           child: TextFormFieldWidget(
+                            initValue: _initValues['price'],
                             label: 'Price',
                             inputAction: TextInputAction.next,
                             keyboardType: TextInputType.number,
@@ -113,6 +151,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                       height: 10,
                     ),
                     TextFormFieldWidget(
+                      initValue: _initValues['discription'],
                       label: 'Discription',
                       keyboardType: TextInputType.multiline,
                       maxLines: 3,
@@ -186,11 +225,13 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                               return 'Enter Image Url';
                             } else if (!val.startsWith('http') &&
                                 !val.startsWith('https')) {
-                                  return 'Enter valid Url';
-                                }else if(!val.endsWith('.jpg')&&!val.endsWith('.jpg')&&!val.endsWith('.jpg')){
-                                  return 'Invalid Url';
-                                }
-                                return null;
+                              return 'Enter valid Url';
+                            } else if (!val.endsWith('.jpg') &&
+                                !val.endsWith('.jpg') &&
+                                !val.endsWith('.jpg')) {
+                              return 'Invalid Url';
+                            }
+                            return null;
                           },
                         ),
                       ),

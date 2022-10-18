@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../providers/products.dart';
+import 'package:shop_app/screens/product_edit_screen.dart';
 
 class UserProductWidget extends StatelessWidget {
   const UserProductWidget(
-      {Key? key, @required this.imageUrl, @required this.title})
+      {Key? key, required this.imageUrl, required this.title, required this.id,})
       : super(key: key);
+      final String? id;
   final String? imageUrl;
   final String? title;
 
@@ -12,7 +13,6 @@ class UserProductWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        
         ListTile(
           leading: CircleAvatar(backgroundImage: NetworkImage(imageUrl!)),
           title: Text(title!),
@@ -20,9 +20,11 @@ class UserProductWidget extends StatelessWidget {
             width: 100,
             child: Row(
               children: [
-                const IconButton(
-                    onPressed: null,
-                    icon: Icon(
+                IconButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(ProductEditScreen.routName, arguments: id);
+                    },
+                    icon: const Icon(
                       Icons.edit,
                       color: Colors.grey,
                     )),
@@ -36,7 +38,7 @@ class UserProductWidget extends StatelessWidget {
             ),
           ),
         ),
-       const Divider(),
+         Divider(),
       ],
     );
   }

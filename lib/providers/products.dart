@@ -67,4 +67,14 @@ class Products with ChangeNotifier {
       return prod.id == id;
     });
   }
+
+  void updateProduct(String id, Product newProduct) {
+    final productIndex = _items.indexWhere((element) => element.id == id);
+    _items[productIndex]=newProduct;
+        notifyListeners();
+  }
+  void deleteProduct(String id){
+    _items.removeWhere((element) => element.id==id);
+    notifyListeners();
+  }
 }
