@@ -12,7 +12,7 @@ class UserProductWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Divider(),
+        
         ListTile(
           leading: CircleAvatar(backgroundImage: NetworkImage(imageUrl!)),
           title: Text(title!),
@@ -36,6 +36,7 @@ class UserProductWidget extends StatelessWidget {
             ),
           ),
         ),
+       const Divider(),
       ],
     );
   }

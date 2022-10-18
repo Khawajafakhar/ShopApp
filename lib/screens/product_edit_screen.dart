@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shop_app/providers/products.dart';
 import 'package:shop_app/widgets/text_formfield_widget.dart';
 import '../providers/product.dart';
+import 'package:provider/provider.dart';
 
 class ProductEditScreen extends StatefulWidget {
   const ProductEditScreen({Key? key}) : super(key: key);
@@ -24,6 +25,9 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     }
 
     _form.currentState!.save();
+    Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+    Navigator.of(context).pop();
+
     // print(_editedProduct.id);
     // print(_editedProduct.title);
     // print(_editedProduct.price);

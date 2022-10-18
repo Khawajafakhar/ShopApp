@@ -3,8 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import './product.dart';
 
-
-class Products with ChangeNotifier{
+class Products with ChangeNotifier {
   // ignore: prefer_final_fields
   List<Product> _items = [
     Product(
@@ -41,25 +40,31 @@ class Products with ChangeNotifier{
     ),
   ];
 
-
-
 //List<Product> favorite=[];
   List<Product> get items {
-    
     return [..._items];
   }
 
-  List<Product> get favoriteItems{
-    
-     return _items.where((element) => element.isFavorite).toList();
-    
-}
+  List<Product> get favoriteItems {
+    return _items.where((element) => element.isFavorite).toList();
+  }
 
-  void addProduct(){
+  void addProduct(Product newProduct) {
+    _items.insert(
+        0,
+        Product(
+          id: DateTime.now().toString(),
+          imageUrl: newProduct.imageUrl,
+          description: newProduct.description,
+          price: newProduct.price,
+          title: newProduct.title,
+        ));
     notifyListeners();
   }
-  Product selectById(String id){
-   return items.firstWhere((prod){return prod.id==id;});
-  }
 
+  Product selectById(String id) {
+    return items.firstWhere((prod) {
+      return prod.id == id;
+    });
+  }
 }
