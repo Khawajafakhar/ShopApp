@@ -19,16 +19,16 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
 
   void _onSave() {
     var isValid = _form.currentState!.validate();
-   if(!isValid){
-    return;
-   }
+    if (!isValid) {
+      return;
+    }
 
     _form.currentState!.save();
-     print(_editedProduct.id);
-     print(_editedProduct.title);
-     print(_editedProduct.price);
-     print(_editedProduct.description);
-     print(_editedProduct.imageUrl);
+    // print(_editedProduct.id);
+    // print(_editedProduct.title);
+    // print(_editedProduct.price);
+    // print(_editedProduct.description);
+    // print(_editedProduct.imageUrl);
   }
 
   @override
@@ -59,47 +59,50 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                               label: 'Title',
                               inputAction: TextInputAction.next,
                               onSaved: (value) {
-                            _editedProduct = Product(
-                              id: _editedProduct.id,
-                              imageUrl: _editedProduct.imageUrl,
-                              description: _editedProduct.description,
-                              price: _editedProduct.price,
-                              title: value,
-                            );},
-                            validate: (val){
-                              if(val!.isEmpty){
-                                return 'Enter Title';
-                              }
-                              return null;
-                            },
+                                _editedProduct = Product(
+                                  id: _editedProduct.id,
+                                  imageUrl: _editedProduct.imageUrl,
+                                  description: _editedProduct.description,
+                                  price: _editedProduct.price,
+                                  title: value,
+                                );
+                              },
+                              validate: (val) {
+                                if (val!.isEmpty) {
+                                  return 'Enter Title';
+                                }
+                                return null;
+                              },
                             )),
                         const SizedBox(
                           width: 10,
                         ),
                         Expanded(
-                            child: TextFormFieldWidget(
-                          label: 'Price',
-                          inputAction: TextInputAction.next,
-                          keyboardType: TextInputType.number,
-                          onSaved: (value) {
-                            _editedProduct = Product(
-                              id: _editedProduct.id,
-                              imageUrl: _editedProduct.imageUrl,
-                              description: _editedProduct.description,
-                              price: double.tryParse(value!),
-                              title: _editedProduct.title,
-                            );},
-                            validate: (val){
-                              if(val!.isEmpty){
+                          child: TextFormFieldWidget(
+                            label: 'Price',
+                            inputAction: TextInputAction.next,
+                            keyboardType: TextInputType.number,
+                            onSaved: (value) {
+                              _editedProduct = Product(
+                                id: _editedProduct.id,
+                                imageUrl: _editedProduct.imageUrl,
+                                description: _editedProduct.description,
+                                price: double.parse(value!),
+                                title: _editedProduct.title,
+                              );
+                            },
+                            validate: (val) {
+                              if (val!.isEmpty) {
                                 return 'Enter Price';
-                              }else if (double.tryParse(val)==false){
-                                 return 'Only Integers';
-                              }else if(double.parse(val)<=0){
+                              } else if (double.tryParse(val) == null) {
+                                return 'Only Integers';
+                              } else if (double.parse(val) <= 0) {
                                 return 'Not Valid';
                               }
                               return null;
                             },
-                        ),)
+                          ),
+                        )
                       ],
                     ),
                     const SizedBox(
@@ -109,16 +112,23 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                       label: 'Discription',
                       keyboardType: TextInputType.multiline,
                       maxLines: 3,
-                      
-                        onSaved: (value) {
-                            _editedProduct = Product(
-                              id: _editedProduct.id,
-                              imageUrl: _editedProduct.imageUrl,
-                              description: value,
-                              price: _editedProduct.price,
-                              title: _editedProduct.title,
-                            );
-                      }
+                      onSaved: (value) {
+                        _editedProduct = Product(
+                          id: _editedProduct.id,
+                          imageUrl: _editedProduct.imageUrl,
+                          description: value,
+                          price: _editedProduct.price,
+                          title: _editedProduct.title,
+                        );
+                      },
+                      validate: (val) {
+                        if (val!.isEmpty) {
+                          return 'Enter discription';
+                        } else if (val.length < 10) {
+                          return 'Add more Discription';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(
                       height: 10,
@@ -166,6 +176,17 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                               price: _editedProduct.price,
                               title: _editedProduct.title,
                             );
+                          },
+                          validate: (val) {
+                            if (val!.isEmpty) {
+                              return 'Enter Image Url';
+                            } else if (!val.startsWith('http') &&
+                                !val.startsWith('https')) {
+                                  return 'Enter valid Url';
+                                }else if(!val.endsWith('.jpg')&&!val.endsWith('.jpg')&&!val.endsWith('.jpg')){
+                                  return 'Invalid Url';
+                                }
+                                return null;
                           },
                         ),
                       ),
