@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:shop_app/screens/product_edit_screen.dart';
-
+import 'package:provider/provider.dart';
+import '../providers/products.dart';
 class UserProductWidget extends StatelessWidget {
-  const UserProductWidget(
-      {Key? key, required this.imageUrl, required this.title, required this.id,})
-      : super(key: key);
-      final String? id;
+  const UserProductWidget({
+    Key? key,
+    required this.imageUrl,
+    required this.title,
+    required this.id,
+  }) : super(key: key);
+  final String? id;
   final String? imageUrl;
   final String? title;
 
@@ -22,14 +26,17 @@ class UserProductWidget extends StatelessWidget {
               children: [
                 IconButton(
                     onPressed: () {
-                      Navigator.of(context).pushNamed(ProductEditScreen.routName, arguments: id);
+                      Navigator.of(context)
+                          .pushNamed(ProductEditScreen.routName, arguments: id);
                     },
                     icon: const Icon(
                       Icons.edit,
                       color: Colors.grey,
                     )),
                 IconButton(
-                    onPressed: null,
+                    onPressed: () {
+                      Provider.of<Products>(context,listen: false).deleteProduct(id!);
+                    },
                     icon: Icon(
                       Icons.delete,
                       color: Theme.of(context).colorScheme.secondary,
@@ -38,7 +45,7 @@ class UserProductWidget extends StatelessWidget {
             ),
           ),
         ),
-         Divider(),
+        Divider(),
       ],
     );
   }
