@@ -14,7 +14,7 @@ class ProductItem extends StatelessWidget {
     return Scaffold(
       body: GridTile(
         child: GestureDetector(
-          child: Image.network(productDetails.imageUrl, fit: BoxFit.cover),
+          child: Image.network(productDetails.imageUrl!, fit: BoxFit.cover),
           onTap: () {
             Navigator.of(context).pushNamed(ProductDetailsScreen.routName,
                 arguments: productDetails.id);
@@ -33,7 +33,7 @@ class ProductItem extends StatelessWidget {
                     },
                   ))),
           title: Text(
-            productDetails.title,
+            productDetails.title!,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 10,
@@ -43,8 +43,8 @@ class ProductItem extends StatelessWidget {
             color: Theme.of(context).colorScheme.secondary,
             icon: const Icon(Icons.shopping_cart),
             onPressed: () {
-              cart.addItems(productDetails.id, productDetails.title,
-                  productDetails.price);
+              cart.addItems(productDetails.id!, productDetails.title!,
+                  productDetails.price!);
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 duration: const Duration(seconds: 2),
@@ -52,7 +52,7 @@ class ProductItem extends StatelessWidget {
                 action: SnackBarAction(
                   label: 'Undo',
                   onPressed: () {
-                    cart.removeSingleItem(productDetails.id);
+                    cart.removeSingleItem(productDetails.id!);
                   },
                 ),
               ));

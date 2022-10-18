@@ -15,7 +15,7 @@ class ProductDetailsScreen extends StatelessWidget {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(productData.title),
+          title: Text(productData.title!),
           backgroundColor: Theme.of(context).primaryColor,
         ),
         body: Column(
@@ -24,7 +24,7 @@ class ProductDetailsScreen extends StatelessWidget {
               height: 300,
               width: double.infinity,
               child: Image.network(
-                productData.imageUrl,
+                productData.imageUrl!,
                 fit: BoxFit.cover,
               ),
             ),
@@ -38,7 +38,7 @@ class ProductDetailsScreen extends StatelessWidget {
               height: 20,
             ),
             Text(
-              productData.description,
+              productData.description!,
             ),
           ],
         ));

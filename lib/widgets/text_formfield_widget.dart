@@ -2,17 +2,35 @@ import 'package:flutter/material.dart';
 
 class TextFormFieldWidget extends StatelessWidget {
   final String? label;
-  TextInputAction? inputAction;
-  int? maxLines;
-  TextInputType? keyboardType;
+  final TextInputAction? inputAction;
+  final int? maxLines;
+  final TextInputType? keyboardType;
+  final TextEditingController? controller;
+  final Function()? editingComplete;
+  final Function(String)? onFieldSubmitted;
+  final Function(String?)? onSaved;
+  final String? Function(String?)? validate;
 
   TextFormFieldWidget(
-      {this.label, this.inputAction, this.maxLines, this.keyboardType});
-  var context_;
+      {this.label,
+      this.inputAction,
+      this.maxLines,
+      this.keyboardType,
+      this.controller,
+      this.editingComplete,
+      this.onFieldSubmitted,
+      this.onSaved,
+      this.validate});
+   var context_;
   @override
   Widget build(BuildContext context) {
     context_ = context;
     return TextFormField(
+      validator: validate,
+      onSaved: onSaved,
+      onFieldSubmitted: onFieldSubmitted,
+      onEditingComplete: editingComplete,
+      controller: controller,
       keyboardType: keyboardType,
       textInputAction: inputAction,
       maxLines: maxLines,
@@ -20,6 +38,9 @@ class TextFormFieldWidget extends StatelessWidget {
         label: Text(label!),
         border: onUnFocusedBorder,
         focusedBorder: getFocusedBorder(),
+        enabledBorder: onUnFocusedBorder,
+        focusedErrorBorder: getErrorBorder(),
+        errorBorder: getErrorBorder(),
       ),
     );
   }
@@ -43,6 +64,17 @@ class TextFormFieldWidget extends StatelessWidget {
         width: 2,
         color: Theme.of(context_).primaryColor,
       ),
+      borderRadius: const BorderRadius.horizontal(
+        left: Radius.circular(10),
+        right: Radius.circular(10),
+      ),
+    );
+  }
+
+  OutlineInputBorder getErrorBorder() {
+    return OutlineInputBorder(
+      borderSide:
+          BorderSide(width: 2, color: Theme.of(context_).colorScheme.secondary),
       borderRadius: const BorderRadius.horizontal(
         left: Radius.circular(10),
         right: Radius.circular(10),
