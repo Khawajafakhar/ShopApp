@@ -29,7 +29,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
       @override
   void didChangeDependencies() {
     if(_ischanged){
-      final productId = ModalRoute.of(context)!.settings.arguments as String;
+      final productId = ModalRoute.of(context)!.settings.arguments as String?;
       if(productId != null){
       _editedProduct=Provider.of<Products>(context).selectById(productId);
       _initValues={
@@ -101,6 +101,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                               inputAction: TextInputAction.next,
                               onSaved: (value) {
                                 _editedProduct = Product(
+                                  isFavorite: _editedProduct.isFavorite,
                                   id: _editedProduct.id,
                                   imageUrl: _editedProduct.imageUrl,
                                   description: _editedProduct.description,
@@ -126,6 +127,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                             keyboardType: TextInputType.number,
                             onSaved: (value) {
                               _editedProduct = Product(
+                                isFavorite: _editedProduct.isFavorite,
                                 id: _editedProduct.id,
                                 imageUrl: _editedProduct.imageUrl,
                                 description: _editedProduct.description,
@@ -151,12 +153,14 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                       height: 10,
                     ),
                     TextFormFieldWidget(
+                      
                       initValue: _initValues['discription'],
                       label: 'Discription',
                       keyboardType: TextInputType.multiline,
                       maxLines: 3,
                       onSaved: (value) {
                         _editedProduct = Product(
+                          isFavorite: _editedProduct.isFavorite,
                           id: _editedProduct.id,
                           imageUrl: _editedProduct.imageUrl,
                           description: value,
@@ -213,6 +217,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                           },
                           onSaved: (value) {
                             _editedProduct = Product(
+                              isFavorite: _editedProduct.isFavorite,
                               id: _editedProduct.id,
                               imageUrl: value,
                               description: _editedProduct.description,
@@ -226,12 +231,10 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                             } else if (!val.startsWith('http') &&
                                 !val.startsWith('https')) {
                               return 'Enter valid Url';
-                            } else if (!val.endsWith('.jpg') &&
-                                !val.endsWith('.jpg') &&
-                                !val.endsWith('.jpg')) {
-                              return 'Invalid Url';
-                            }
-                            return null;
+                            }  
+                              return null;
+                            
+                            
                           },
                         ),
                       ),

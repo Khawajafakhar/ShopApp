@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import './product.dart';
@@ -50,16 +52,29 @@ class Products with ChangeNotifier {
   }
 
   void addProduct(Product newProduct) {
-    _items.insert(
-        0,
-        Product(
-          id: DateTime.now().toString(),
-          imageUrl: newProduct.imageUrl,
-          description: newProduct.description,
-          price: newProduct.price,
-          title: newProduct.title,
-        ));
-    notifyListeners();
+    final url = Uri.parse(
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products.json');
+    http
+        .post(url,
+            body: json.encode({
+              'id': newProduct.id,
+              'imageUrl': newProduct.imageUrl,
+              'description': newProduct.description,
+              'price': newProduct.price,
+              'title': newProduct.title
+            }))
+        .then((respone) {
+      _items.insert(
+          0,
+          Product(
+            id: json.decode(respone.body),
+            imageUrl: newProduct.imageUrl,
+            description: newProduct.description,
+            price: newProduct.price,
+            title: newProduct.title,
+          ));
+      notifyListeners();
+    });
   }
 
   Product selectById(String id) {
@@ -70,11 +85,12 @@ class Products with ChangeNotifier {
 
   void updateProduct(String id, Product newProduct) {
     final productIndex = _items.indexWhere((element) => element.id == id);
-    _items[productIndex]=newProduct;
-        notifyListeners();
+    _items[productIndex] = newProduct;
+    notifyListeners();
   }
-  void deleteProduct(String id){
-    _items.removeWhere((element) => element.id==id);
+
+  void deleteProduct(String id) {
+    _items.removeWhere((element) => element.id == id);
     notifyListeners();
   }
 }
