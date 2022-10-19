@@ -51,10 +51,10 @@ class Products with ChangeNotifier {
     return _items.where((element) => element.isFavorite).toList();
   }
 
-  void addProduct(Product newProduct) {
+  Future<void> addProduct(Product newProduct) {
     final url = Uri.parse(
         'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products.json');
-    http
+   return http
         .post(url,
             body: json.encode({
               'id': newProduct.id,
@@ -64,10 +64,11 @@ class Products with ChangeNotifier {
               'title': newProduct.title
             }))
         .then((respone) {
+          print(json.decode(respone.body));
       _items.insert(
           0,
           Product(
-            id: json.decode(respone.body),
+            id: json.decode(respone.body)['name'],
             imageUrl: newProduct.imageUrl,
             description: newProduct.description,
             price: newProduct.price,
