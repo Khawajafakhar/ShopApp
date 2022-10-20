@@ -54,10 +54,11 @@ class Products with ChangeNotifier {
   Future<void> fetchAndSetProducts() async {
     final url = Uri.parse(
         'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products.json');
-    
-     try{ final response = await http.get(url);
+
+    try {
+      final response = await http.get(url);
       print(response);
-      final fetchData =  json.decode(response.body) as Map<String, dynamic>;
+      final fetchData = json.decode(response.body) as Map<String, dynamic>;
       print(fetchData);
       List<Product> fetchedList = [];
       fetchData.forEach((prodkey, prodvalue) {
@@ -68,16 +69,15 @@ class Products with ChangeNotifier {
           imageUrl: prodvalue['imageUrl'],
           price: prodvalue['price'],
         ));
-        
-        
       });
-     _items=fetchedList;
-  
-    notifyListeners();
-  }catch(error){
-    print(error);
-    rethrow;
-  }}
+      _items = fetchedList;
+
+      notifyListeners();
+    } catch (error) {
+      print(error);
+      rethrow;
+    }
+  }
 
   Future<void> addProduct(Product newProduct) async {
     final url = Uri.parse(
@@ -89,7 +89,8 @@ class Products with ChangeNotifier {
             'imageUrl': newProduct.imageUrl,
             'description': newProduct.description,
             'price': newProduct.price,
-            'title': newProduct.title
+            'title': newProduct.title,
+            'favorite' : newProduct.isFavorite
           }));
       print(json.decode(response.body));
       _items.insert(
@@ -115,9 +116,21 @@ class Products with ChangeNotifier {
     });
   }
 
-  void updateProduct(String id, Product newProduct) {
+  Future<void> updateProduct(String id, Product newProduct) async{
     final productIndex = _items.indexWhere((element) => element.id == id);
-    _items[productIndex] = newProduct;
+    if (productIndex >= 0) {
+       final url = Uri.parse(
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products/$id.json');
+     await http.patch(url, body:  json.encode({
+        'description': newProduct.description,
+        'imageUrl' : newProduct.imageUrl,
+        'price' : newProduct.price,
+        'title' : newProduct.title,
+        'favorite' : newProduct.isFavorite
+
+      }));
+      _items[productIndex] = newProduct;
+    }
     notifyListeners();
   }
 
