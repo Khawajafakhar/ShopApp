@@ -48,7 +48,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     super.didChangeDependencies();
   }
 
-  void _onSave() {
+  void _onSave() async{
     var isValid = _form.currentState!.validate();
     if (!isValid) {
       return;
@@ -66,11 +66,10 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
         _isLoading = false;
       });
     } else {
-      Provider.of<Products>(context, listen: false)
-          .addProduct(_editedProduct)
-          .catchError((error) {
-            print(error);
-        return showDialog(
+      try{
+     await Provider.of<Products>(context, listen: false)
+          .addProduct(_editedProduct);}catch(error){
+                return await showDialog(
             context: context,
             builder: (ctx) {
               return  AlertDialog(
@@ -81,12 +80,18 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                 }, child: const Text('Okay'))],
               );
             });
-      }).then((_) {
-        setState(() {
+      
+          }finally{
+            setState(() {
           _isLoading = false;
+         Navigator.of(context).pop();
         });
-        Navigator.of(context).pop();
-      });
+          }
+          
+      
+      //  Navigator.of(context).pop();
+        
+      
     }
 
     // print(_editedProduct.id);
@@ -237,6 +242,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                                 ),
                                 Expanded(
                                   child: TextFormFieldWidget(
+                                    maxLines: 5,
                                     label: 'ImageUrl',
                                     inputAction: TextInputAction.done,
                                     keyboardType: TextInputType.url,

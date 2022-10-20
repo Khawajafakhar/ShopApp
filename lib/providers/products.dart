@@ -51,10 +51,10 @@ class Products with ChangeNotifier {
     return _items.where((element) => element.isFavorite).toList();
   }
 
-  Future<void> addProduct(Product newProduct) {
+  Future<void> addProduct(Product newProduct) async {
     final url = Uri.parse(
-        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products.json');
-   return http
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products');
+  try {final response=await http
         .post(url,
             body: json.encode({
               'id': newProduct.id,
@@ -62,20 +62,23 @@ class Products with ChangeNotifier {
               'description': newProduct.description,
               'price': newProduct.price,
               'title': newProduct.title
-            }))
-        .then((respone) {
-          print(json.decode(respone.body));
+            }));
+               print(json.decode(response.body));
       _items.insert(
           0,
           Product(
-            id: json.decode(respone.body)['name'],
+            id: json.decode(response.body)['name'],
             imageUrl: newProduct.imageUrl,
             description: newProduct.description,
             price: newProduct.price,
             title: newProduct.title,
-          ));
+          ));}catch(error){
+              print(error);
+              rethrow ;
+            }
+         
       notifyListeners();
-    });
+    
   }
 
   Product selectById(String id) {
