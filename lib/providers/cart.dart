@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shop_app/providers/http_exception.dart';
 
 class CartItem {
   String? id;
@@ -34,7 +37,10 @@ class Cart with ChangeNotifier {
     return total;
   }
 
-  void addItems(String productId, String title, double price) {
+  Future<void> addItems(String productId, String title, double price)  async{
+    final url = Uri.parse(
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/cartitems.json');
+
     if (_items.containsKey(productId)) {
       // ... updating the existing product
       _items.update(
@@ -44,17 +50,33 @@ class Cart with ChangeNotifier {
               title: existingValue.title,
               price: existingValue.price,
               quantity: existingValue.quantity! + 1));
+              
     } else {
       //...adding a new cartItem
-      _items.putIfAbsent(
+     await  http.post(url,
+          body: json.encode({
+            'title': title,
+            'price': price,
+            'quantity': 1,
+          })).then((response) { _items.putIfAbsent(
           productId,
           () => CartItem(
-              id: DateTime.now().toString(),
+              id: json.decode(response.body)['name'],
               title: title,
               price: price,
-              quantity: 1));
+              quantity: 1),
+        );
+        notifyListeners();}
+
+        );
+       
+     // if (response.statusCode >= 400) {
+     //   throw HttpException('Not added to cart');
+     // } 
+        
+      
     }
-    notifyListeners();
+   //  notifyListeners();
   }
 
   void removeFromCart(String id) {
@@ -66,7 +88,7 @@ class Cart with ChangeNotifier {
     if (!_items.containsKey(id)) {
       return;
     } else if (_items[id]!.quantity! > 1) {
-    _items.update(
+      _items.update(
           id,
           (existingvalue) => CartItem(
                 id: existingvalue.id,
@@ -74,9 +96,8 @@ class Cart with ChangeNotifier {
                 price: existingvalue.price,
                 quantity: existingvalue.quantity! - 1,
               ));
-              
-    }else{
-       _items.remove(id);
+    } else {
+      _items.remove(id);
     }
     notifyListeners();
   }
