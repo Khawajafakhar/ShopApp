@@ -52,9 +52,29 @@ class Products with ChangeNotifier {
     return _items.where((element) => element.isFavorite).toList();
   }
 
-  Future<void> favoriteStatus(String id, Product newProduct) async{
+  Future<void> favoriteStatus(String id) async{
+        var existingProductIndex=_items.indexWhere((element) => element.id == id);
+        var  existingProduct =_items[existingProductIndex];
+        existingProduct.toggleFavorites();
+        notifyListeners();
 
-    
+          final url = Uri.parse(
+          'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products/$id');
+    final response= await http.patch(url,
+          body: json.encode({
+            'description': existingProduct.description,
+            'imageUrl': existingProduct.imageUrl,
+            'price': existingProduct.price,
+            'title': existingProduct.title,
+            'favorite': existingProduct.isFavorite
+          }));
+          if(response.statusCode >= 400){
+            existingProduct.toggleFavorites();
+            _items[existingProductIndex]=existingProduct;
+            notifyListeners();
+            throw HttpException('Failed to Set Favorite');
+          }
+
 
   }
 
@@ -99,7 +119,6 @@ class Products with ChangeNotifier {
             'title': newProduct.title,
             'favorite': newProduct.isFavorite
           }));
-      print(json.decode(response.body));
       _items.insert(
           0,
           Product(
