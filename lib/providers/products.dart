@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '/providers/http_exception.dart';
 import './product.dart';
 
 class Products with ChangeNotifier {
@@ -51,6 +52,12 @@ class Products with ChangeNotifier {
     return _items.where((element) => element.isFavorite).toList();
   }
 
+  Future<void> favoriteStatus(String id, Product newProduct) async{
+
+    
+
+  }
+
   Future<void> fetchAndSetProducts() async {
     final url = Uri.parse(
         'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products.json');
@@ -90,7 +97,7 @@ class Products with ChangeNotifier {
             'description': newProduct.description,
             'price': newProduct.price,
             'title': newProduct.title,
-            'favorite' : newProduct.isFavorite
+            'favorite': newProduct.isFavorite
           }));
       print(json.decode(response.body));
       _items.insert(
@@ -116,26 +123,47 @@ class Products with ChangeNotifier {
     });
   }
 
-  Future<void> updateProduct(String id, Product newProduct) async{
+  Future<void> updateProduct(String id, Product newProduct) async {
     final productIndex = _items.indexWhere((element) => element.id == id);
     if (productIndex >= 0) {
-       final url = Uri.parse(
-        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products/$id.json');
-     await http.patch(url, body:  json.encode({
-        'description': newProduct.description,
-        'imageUrl' : newProduct.imageUrl,
-        'price' : newProduct.price,
-        'title' : newProduct.title,
-        'favorite' : newProduct.isFavorite
-
-      }));
+      final url = Uri.parse(
+          'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products/$id.json');
+      await http.patch(url,
+          body: json.encode({
+            'description': newProduct.description,
+            'imageUrl': newProduct.imageUrl,
+            'price': newProduct.price,
+            'title': newProduct.title,
+            'favorite': newProduct.isFavorite
+          }));
       _items[productIndex] = newProduct;
     }
     notifyListeners();
   }
 
-  void deleteProduct(String id) {
-    _items.removeWhere((element) => element.id == id);
+  Future<void> deleteProduct(String id) async {
+    final productIndex = _items.indexWhere((element) => element.id == id);
+    Product? prod;
+    prod = _items[productIndex];
+    _items.removeAt(productIndex);
     notifyListeners();
+    final url = Uri.parse(
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products/$id.json');
+
+   final response = await http.delete(url);
+   {
+    if(response.statusCode >= 400){
+       _items.insert(productIndex, prod);
+       notifyListeners();
+       throw HttpException('Failed to delete');
+    }else {
+      prod=null;
+    }
+   }
+      
+    }
+
+    
+    
   }
-}
+

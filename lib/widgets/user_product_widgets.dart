@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shop_app/screens/product_edit_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/products.dart';
+
 class UserProductWidget extends StatelessWidget {
   const UserProductWidget({
     Key? key,
@@ -15,6 +16,7 @@ class UserProductWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scaffold = ScaffoldMessenger.of(context);
     return Column(
       children: [
         ListTile(
@@ -34,8 +36,18 @@ class UserProductWidget extends StatelessWidget {
                       color: Colors.grey,
                     )),
                 IconButton(
-                    onPressed: () {
-                      Provider.of<Products>(context,listen: false).deleteProduct(id!);
+                    onPressed: () async {
+                      try {
+                        await Provider.of<Products>(context, listen: false)
+                            .deleteProduct(id!);
+                      } catch (error) {
+                        scaffold.removeCurrentSnackBar();
+                        scaffold.showSnackBar(SnackBar(
+                            content: Text(
+                          error.toString(),
+                          textAlign: TextAlign.center,
+                        ),duration: const Duration(seconds: 2),));
+                      }
                     },
                     icon: Icon(
                       Icons.delete,
