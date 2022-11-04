@@ -21,7 +21,8 @@ class OrderItems {
 class Orders with ChangeNotifier {
   List<OrderItems> _items = [];
   final String authToken;
-  Orders(this.authToken,this._items);
+  final String userId;
+  Orders(this.authToken,this.userId,this._items);
 
   List<OrderItems> get getItems {
     return [..._items];
@@ -29,7 +30,7 @@ class Orders with ChangeNotifier {
 
   Future<void> fetchAndSet() async {
     final url = Uri.parse(
-        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/orders.json?auth=$authToken');
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/orders/$userId.json?auth=$authToken');
    try {final response = await http.get(url);
     if(response.statusCode>=400){
       return;
@@ -62,7 +63,7 @@ class Orders with ChangeNotifier {
   ) async {
     final timeStamp = DateTime.now();
     final url = Uri.parse(
-        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/orders.json?auth=$authToken');
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/orders/$userId.json?auth=$authToken');
     final response = await http.post(url,
         body: json.encode({
           'amount': total.toStringAsFixed(2),
