@@ -25,38 +25,47 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) => Auth()),
-        ChangeNotifierProvider(
-          create: (context) => Products(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => Cart(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => Orders(),
-        ),
-      ],
-      child:Consumer<Auth>(builder: (ctx, value, child) => MaterialApp(
-          theme: ThemeData(
-              primarySwatch: Colors.purple,
-              colorScheme: theme.colorScheme.copyWith(
-                secondary: Colors.deepOrange,
-              ),
-              fontFamily: 'Lato'),
+        providers: [
+          ChangeNotifierProvider(create: (context) => Auth()),
+          ChangeNotifierProxyProvider<Auth, Products>(
+            update: (context, value, previous) => Products(value.token!,
+                value.userId!, previous == null ? [] : previous.items),
+            create: (context) => Products(
+                Provider.of<Auth>(context, listen: false).token!,
+                Provider.of<Auth>(context, listen: false).userId!, []),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => Cart(),
+          ),
+          ChangeNotifierProxyProvider<Auth, Orders>(
+            update: (context, value, previous) =>
+                Orders(value.token!, previous == null ? [] : previous.getItems),
+            create: (context) =>
+                Orders(Provider.of<Auth>(context, listen: false).token!, []),
+          ),
+        ],
+        child: Consumer<Auth>(
+          builder: (ctx, value, child) => MaterialApp(
+              theme: ThemeData(
+                  primarySwatch: Colors.purple,
+                  colorScheme: theme.colorScheme.copyWith(
+                    secondary: Colors.deepOrange,
+                  ),
+                  fontFamily: 'Lato'),
               home: value.isAuth ? ProductsOverviewScreen() : AuthScreen(),
-          routes: {
-            AuthScreen.routeName: (context) => AuthScreen(),
-            ProductsOverviewScreen.routeName: (context) =>
-                ProductsOverviewScreen(),
-            ProductDetailsScreen.routName: (context) =>
-                const ProductDetailsScreen(),
-            CartScreen.routeName: (context) => const CartScreen(),
-            OrdersScreen.routeName: (context) => const OrdersScreen(),
-            UserProductScreen.routeName: (context) => const UserProductScreen(),
-            ProductEditScreen.routName: (context) => const ProductEditScreen()
-          }),) 
-    );
+              routes: {
+                AuthScreen.routeName: (context) => AuthScreen(),
+                ProductsOverviewScreen.routeName: (context) =>
+                    ProductsOverviewScreen(),
+                ProductDetailsScreen.routName: (context) =>
+                    const ProductDetailsScreen(),
+                CartScreen.routeName: (context) => const CartScreen(),
+                OrdersScreen.routeName: (context) => const OrdersScreen(),
+                UserProductScreen.routeName: (context) =>
+                    const UserProductScreen(),
+                ProductEditScreen.routName: (context) =>
+                    const ProductEditScreen()
+              }),
+        ));
   }
 }

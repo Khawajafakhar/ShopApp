@@ -13,6 +13,9 @@ class Auth with ChangeNotifier {
   bool get isAuth{
     return token !=null;
   }
+  String? get userId{
+    return _userId;
+  }
 
   String? get token{
     if(_expireyDate!=null&&_expireyDate!.isAfter(DateTime.now())&&_token!=null){

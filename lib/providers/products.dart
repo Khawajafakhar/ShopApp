@@ -48,43 +48,47 @@ class Products with ChangeNotifier {
     return [..._items];
   }
 
+  final String authToken;
+  final String userId;
+
+  Products(this.authToken,this.userId, this._items);
+
   List<Product> get favoriteItems {
     return _items.where((element) => element.isFavorite).toList();
   }
 
-  Future<void> favoriteStatus(String id) async{
-        var existingProductIndex=_items.indexWhere((element) => element.id == id);
-        var  existingProduct =_items[existingProductIndex];
-        existingProduct.toggleFavorites();
-        notifyListeners();
+  Future<void> favoriteStatus(String id) async {
+    var existingProductIndex = _items.indexWhere((element) => element.id == id);
+    var existingProduct = _items[existingProductIndex];
+    existingProduct.toggleFavorites();
+    notifyListeners();
 
-          final url = Uri.parse(
-          'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products/$id');
-    final response= await http.patch(url,
-          body: json.encode({
-            'description': existingProduct.description,
-            'imageUrl': existingProduct.imageUrl,
-            'price': existingProduct.price,
-            'title': existingProduct.title,
-            'favorite': existingProduct.isFavorite
-          }));
-          if(response.statusCode >= 400){
-            existingProduct.toggleFavorites();
-            _items[existingProductIndex]=existingProduct;
-            notifyListeners();
-            throw HttpException('Failed to Set Favorite');
-          }
-
-
+    final url = Uri.parse(
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/favouritStatus/$userId/$id.json?auth=$authToken');
+    final response = await http.put(url,
+        body: json.encode( existingProduct.isFavorite));
+    if (response.statusCode >= 400) {
+      existingProduct.toggleFavorites();
+      _items[existingProductIndex] = existingProduct;
+      notifyListeners();
+      throw HttpException('Failed to Set Favorite');
+    }
   }
 
-  Future<void> fetchAndSetProducts() async {
-    final url = Uri.parse(
-        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products.json');
+  Future<void> fetchAndSetProducts([bool isFiltered=false]) async {
+    var filtered= isFiltered ? 'orderBy="creatorId"&equalTo="$userId"' : '';
+    var url = Uri.parse(
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products.json?auth=$authToken&$filtered');
 
     try {
       final response = await http.get(url);
       final fetchData = json.decode(response.body) as Map<String, dynamic>;
+      print(fetchData);
+      url = Uri.parse(
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/favouritStatus/$userId.json?auth=$authToken');
+        final favResponse= await http.get(url);
+        final favRespDecoded= json.decode(favResponse.body);
+        print(favRespDecoded);
       List<Product> fetchedList = [];
       fetchData.forEach((prodkey, prodvalue) {
         fetchedList.add(Product(
@@ -93,20 +97,21 @@ class Products with ChangeNotifier {
           description: prodvalue['description'],
           imageUrl: prodvalue['imageUrl'],
           price: prodvalue['price'],
+          isFavorite:favRespDecoded==null ? false : favRespDecoded[prodkey] ?? false,
         ));
       });
       _items = fetchedList;
 
       notifyListeners();
     } catch (error) {
-      print(error);
+      print('errorMessage: $error');
       rethrow;
     }
   }
 
   Future<void> addProduct(Product newProduct) async {
-    final url = Uri.parse(
-        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products.json');
+    var url = Uri.parse(
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final response = await http.post(url,
           body: json.encode({
@@ -115,8 +120,9 @@ class Products with ChangeNotifier {
             'description': newProduct.description,
             'price': newProduct.price,
             'title': newProduct.title,
-            'favorite': newProduct.isFavorite
+            'creatorId' : userId
           }));
+          
       _items.insert(
           0,
           Product(
@@ -144,19 +150,21 @@ class Products with ChangeNotifier {
     final productIndex = _items.indexWhere((element) => element.id == id);
     if (productIndex >= 0) {
       final url = Uri.parse(
-          'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products/$id.json');
-      await http.patch(url,
+          'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
+      try{final response=await http.patch(url,
           body: json.encode({
             'description': newProduct.description,
             'imageUrl': newProduct.imageUrl,
             'price': newProduct.price,
             'title': newProduct.title,
-            'favorite': newProduct.isFavorite
           }));
       _items[productIndex] = newProduct;
+    }catch(err){
+      print(err);
+      rethrow ;
     }
     notifyListeners();
-  }
+  }}
 
   Future<void> deleteProduct(String id) async {
     final productIndex = _items.indexWhere((element) => element.id == id);
@@ -165,22 +173,17 @@ class Products with ChangeNotifier {
     _items.removeAt(productIndex);
     notifyListeners();
     final url = Uri.parse(
-        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products/$id.json');
+        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
 
-   final response = await http.delete(url);
-   {
-    if(response.statusCode >= 400){
-       _items.insert(productIndex, prod);
-       notifyListeners();
-       throw HttpException('Failed to delete');
-    }else {
-      prod=null;
+    final response = await http.delete(url);
+    {
+      if (response.statusCode >= 400) {
+        _items.insert(productIndex, prod);
+        notifyListeners();
+        throw HttpException('Failed to delete');
+      } else {
+        prod = null;
+      }
     }
-   }
-      
-    }
-
-    
-    
   }
-
+}

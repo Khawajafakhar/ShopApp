@@ -60,13 +60,12 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     });
 
     if (_editedProduct.id != null) {
+     try{
      await Provider.of<Products>(context, listen: false)
-          .updateProduct(_editedProduct.id!, _editedProduct);
-      
-    } else {
-      try{
-     await Provider.of<Products>(context, listen: false)
-          .addProduct(_editedProduct);}catch(error){
+          .updateProduct(_editedProduct.id!,_editedProduct).then((_) =>  setState(() {
+        _isLoading = false;
+        Navigator.of(context).pop();
+      }));}catch(error){
                 return await showDialog(
             context: context,
             builder: (ctx) {
@@ -81,11 +80,29 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
       
           }
           
-      setState(() {
+      
+    } else {
+      try{
+     await Provider.of<Products>(context, listen: false)
+          .addProduct(_editedProduct).then((_) =>setState(() {
         _isLoading = false;
         Navigator.of(context).pop();
-      });
-      //  Navigator.of(context).pop();
+      }) );}catch(error){
+                return await showDialog(
+            context: context,
+            builder: (ctx) {
+              return  AlertDialog(
+                title: const Text('An error ocurred'),
+                content:  Text(error.toString()),
+                actions: [TextButton(onPressed: (){
+                  Navigator.of(ctx).pop();
+                }, child: const Text('Okay'))],
+              );
+            });
+      
+          }
+          
+      
         
       
     }

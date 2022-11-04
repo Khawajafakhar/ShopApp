@@ -38,8 +38,7 @@ class Cart with ChangeNotifier {
   }
 
   Future<void> addItems(String productId, String title, double price)  async{
-    final url = Uri.parse(
-        'https://flutter-update-7ebbf-default-rtdb.firebaseio.com/cartitems.json');
+    
 
     if (_items.containsKey(productId)) {
       // ... updating the existing product
@@ -53,22 +52,17 @@ class Cart with ChangeNotifier {
               
     } else {
       //...adding a new cartItem
-     await  http.post(url,
-          body: json.encode({
-            'title': title,
-            'price': price,
-            'quantity': 1,
-          })).then((response) { _items.putIfAbsent(
+      _items.putIfAbsent(
           productId,
           () => CartItem(
-              id: json.decode(response.body)['name'],
+              id: DateTime.now().toString(),
               title: title,
               price: price,
               quantity: 1),
         );
-        notifyListeners();}
+        notifyListeners();
 
-        );
+        
        
      // if (response.statusCode >= 400) {
      //   throw HttpException('Not added to cart');
